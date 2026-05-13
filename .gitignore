@@ -1,0 +1,21 @@
+# LaunchBox
+*.user
+*.suo
+*.cache
+bin/
+obj/
+.vs/
+
+# Build output
+*.dll
+*.pdb
+*.exe
+!stubs/**/*.dll
+
+# NuGet
+*.nupkg
+**/packages/*
+
+# OS
+.DS_Store
+Thumbs.db

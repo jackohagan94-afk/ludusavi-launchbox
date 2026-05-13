@@ -1,0 +1,306 @@
+###############################################################################
+#  Example Ludusavi config.yaml
+#  Designed for emulator setups using platform-level custom entries.
+#  Each entry backs up ALL saves/states for a given platform.
+#
+#  Place this in:  %APPDATA%/ludusavi/config.yaml
+#  (usually C:\Users\<You>\AppData\Roaming\ludusavi\config.yaml)
+###############################################################################
+
+---
+runtime:
+  threads: ~
+  networkSecurity: safe
+release:
+  check: true
+manifest:
+  enable: true
+language: en-US
+theme: dark
+
+###############################################################################
+#  Roots: tell Ludusavi where to find PC game installations.
+#  Add your Steam/Epic/GOG/WinStore library paths here.
+###############################################################################
+roots:
+  - store: microsoft
+    path: "C:/Program Files/WindowsApps"
+  - store: ea
+    path: "C:/Program Files/EA Games"
+redirects: []
+
+###############################################################################
+#  Backup settings
+###############################################################################
+backup:
+  # Where backup files are stored (also used as default restore path)
+  path: "C:/Users/<YourName>/ludusavi-backup"
+  ignoredGames: []
+  filter:
+    excludeStoreScreenshots: false
+    cloud:
+      exclude: false
+      epic: false
+      gog: false
+      origin: false
+      steam: false
+      uplay: false
+    ignoredPaths: []
+    ignoredRegistry: []
+  toggledPaths: {}
+  toggledRegistry: {}
+  sort:
+    key: status
+    reversed: false
+  retention:
+    full: 1           # Keep 1 full backup per game
+    differential: 0   # No differential backups
+  format:
+    chosen: zip        # Store backups as zip files
+    zip:
+      compression: zstd
+    compression:
+      deflate:
+        level: 6
+      bzip2:
+        level: 6
+      zstd:
+        level: 19      # Maximum compression
+  onlyConstructive: true
+
+###############################################################################
+#  Restore settings (usually same path as backup)
+###############################################################################
+restore:
+  path: "C:/Users/<YourName>/ludusavi-backup"
+  ignoredGames: []
+  toggledPaths: {}
+  toggledRegistry: {}
+  sort:
+    key: status
+    reversed: false
+  reverseRedirects: false
+
+###############################################################################
+#  Scan display
+###############################################################################
+scan:
+  showDeselectedGames: true
+  showUnchangedGames: true
+  showUnscannedGames: true
+
+###############################################################################
+#  Cloud sync (requires rclone) - optional
+#  Set 'remote' to your rclone remote name (e.g. "gdrive:") to enable.
+###############################################################################
+cloud:
+  remote: ~                                  # Set to e.g. "gdrive:" to enable
+  path: ludusavi-backup
+  synchronize: true
+
+###############################################################################
+#  Third-party tools
+###############################################################################
+apps:
+  # rclone.exe path (required only if cloud sync enabled)
+  rclone:
+    path: "C:\\Tools\\rclone\\rclone.exe"
+    arguments: "--fast-list --ignore-checksum"
+
+###############################################################################
+#  Custom games (emulator platform entries)
+#  Each entry backs up save files and save states for a console platform.
+#  Glob patterns (**) capture all save files regardless of game.
+#
+#  TIP: Name these entries to match your LaunchBox platform names exactly.
+#       The plugin will auto-detect non-PC games and back up by platform.
+###############################################################################
+customGames:
+  - name: Nintendo Game Boy Advance
+    integration: override
+    files:
+      - "C:\\RetroArch-Win64\\saves\\mGBA\\**"
+      - "C:\\RetroArch-Win64\\states\\mGBA\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Nintendo Game Boy
+    integration: override
+    files:
+      - "C:\\RetroArch-Win64\\saves\\SameBoy\\**"
+      - "C:\\RetroArch-Win64\\states\\SameBoy\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Nintendo Game Boy Color
+    integration: override
+    files:
+      - "C:\\RetroArch-Win64\\saves\\SameBoy\\**"
+      - "C:\\RetroArch-Win64\\states\\SameBoy\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Nintendo DS
+    integration: override
+    files:
+      - "C:\\Emulation\\Emulators\\melonDS\\saves\\**"
+      - "C:\\RetroArch-Win64\\saves\\melonDS\\**"
+      - "C:\\RetroArch-Win64\\states\\melonDS\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Nintendo 3DS
+    integration: override
+    files:
+      - "C:\\Users\\<YourName>\\AppData\\Roaming\\Azahar\\sdmc\\Nintendo 3DS\\**"
+      - "C:\\Users\\<YourName>\\AppData\\Roaming\\Azahar\\nand\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Nintendo Entertainment System
+    integration: override
+    files:
+      - "C:\\Emulation\\Emulators\\Nestopia\\saves\\**"
+      - "C:\\Emulation\\Emulators\\Nestopia\\states\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Super Nintendo Entertainment System
+    integration: override
+    files:
+      - "C:\\Emulation\\Emulators\\Snes9x\\SaveData\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Nintendo 64
+    integration: override
+    files:
+      - "C:\\RetroArch-Win64\\saves\\mupen64plus_next\\**"
+      - "C:\\RetroArch-Win64\\states\\mupen64plus_next\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Nintendo GameCube
+    integration: override
+    files:
+      - "C:\\Users\\<YourName>\\AppData\\Roaming\\Dolphin Emulator\\GC\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Nintendo Wii
+    integration: override
+    files:
+      - "C:\\Users\\<YourName>\\AppData\\Roaming\\Dolphin Emulator\\Wii\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Nintendo Wii U
+    integration: override
+    files:
+      - "C:\\Users\\<YourName>\\AppData\\Roaming\\Cemu\\mlc01\\usr\\save\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Nintendo Switch
+    integration: override
+    files:
+      - "C:\\Users\\<YourName>\\AppData\\Roaming\\Ryujinx\\bis\\user\\save\\**"
+      - "C:\\Users\\<YourName>\\AppData\\Roaming\\Ryujinx\\bis\\system\\save\\**"
+      - "C:\\Users\\<YourName>\\AppData\\Roaming\\Ryujinx\\sdcard\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Sony PlayStation
+    integration: override
+    files:
+      - "C:\\Emulation\\Emulators\\Duckstation\\memcards\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Sony PlayStation 2
+    integration: override
+    files:
+      - "C:\\Emulation\\Emulators\\PCSX2\\memcards\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Sony PlayStation 3
+    integration: override
+    files:
+      - "C:\\Emulation\\Emulators\\RPCS3\\dev_hdd0\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Sony PlayStation Portable
+    integration: override
+    files:
+      - "C:\\Emulation\\Emulators\\PPSSPP\\PSP\\SAVEDATA\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Sony PlayStation Vita
+    integration: override
+    files:
+      - "C:\\Emulation\\Emulators\\Vita3K\\Vita3K\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Sega Dreamcast
+    integration: override
+    files:
+      - "C:\\Emulation\\Emulators\\Flycast\\data\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Sega Saturn
+    integration: override
+    files:
+      - "C:\\RetroArch-Win64\\saves\\beetle_saturn\\**"
+      - "C:\\RetroArch-Win64\\states\\beetle_saturn\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Sega Genesis / Mega Drive
+    integration: override
+    files:
+      - "C:\\RetroArch-Win64\\saves\\genesis_plus_gx\\**"
+      - "C:\\RetroArch-Win64\\states\\genesis_plus_gx\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Microsoft Xbox
+    integration: override
+    files:
+      - "C:\\Users\\<YourName>\\AppData\\Roaming\\xemu\\xemu\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
+
+  - name: Microsoft Xbox 360
+    integration: override
+    files:
+      - "C:\\Emulation\\Emulators\\Xenia Canary\\content\\**"
+      - "C:\\Emulation\\Emulators\\Xenia Canary\\config\\**"
+    registry: []
+    installDir: []
+    winePrefix: []
