@@ -45,9 +45,55 @@ Copy `examples/config.yaml` to `%APPDATA%\ludusavi\config.yaml` as a starting po
 - **Custom game entries** — one per emulator platform you want to back up (edit the paths to match your emulator save folders)
 - **Cloud sync** — set the `remote` field to your rclone remote name if using cloud storage
 
-### 3. Install the Plugin
+### 3. (Recommended) Auto-Detect Emulator Paths
 
-1. Download `LudusaviLaunchBox.dll` from the [latest release](https://github.com/YOUR_USER/ludusavi-launchbox/releases)
+Run the discovery script to scan your system and fill in emulator save paths:
+
+```powershell
+.\scripts\discover-paths.ps1 -ConfigPath "$env:APPDATA\ludusavi\config.yaml"
+```
+
+This replaces `%RETROARCH%`, `%EMUDIR%`, `%USERPROFILE%`, and `%APPDATA%` placeholders with actual detected paths. Run it without `-ConfigPath` first to preview what it finds.
+
+### 4. Set Up Cloud Sync (Optional)
+
+Ludusavi uses [rclone](https://rclone.org) for cloud sync. Install it first:
+
+```powershell
+# Via scoop (recommended)
+scoop install rclone
+
+# Or download from https://rclone.org/downloads/
+```
+
+Configure a remote (example for Google Drive):
+
+```powershell
+rclone config
+# n) New remote
+# name> gdrive
+# type> drive
+# Follow the prompts to authenticate in your browser
+```
+
+Then set the remote in your ludusavi config:
+
+```yaml
+cloud:
+  remote: "gdrive:"        # the colon is required
+  path: ludusavi-backup
+  synchronize: true
+```
+
+Test it works:
+
+```powershell
+ludusavi cloud sync --api
+```
+
+### 5. Install the Plugin
+
+1. Download `LudusaviLaunchBox.dll` from the [latest release](https://github.com/jackohagan94-afk/ludusavi-launchbox/releases)
 2. Drop it into your LaunchBox `Plugins` folder:
    ```
    C:\Users\<You>\LaunchBox\Plugins\LudusaviLaunchBox.dll
