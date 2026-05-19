@@ -35,7 +35,7 @@ public class LudusaviCli
     {
         if (_ludusaviVersion != null) return _ludusaviVersion;
 
-        var (code, output) = Etc.RunCommand(_exePath, "--version --api");
+        var (code, output) = Etc.RunCommand(_exePath, "--version", "--api");
         if (code == 0)
         {
             try
@@ -75,7 +75,7 @@ public class LudusaviCli
 
     public void RefreshBackups()
     {
-        var (code, output) = Etc.RunCommand(_exePath, "--try-manifest-update backups --api");
+        var (code, output) = Etc.RunCommand(_exePath, "--try-manifest-update", "backups", "--api");
         if (code != 0) return;
 
         try
@@ -99,7 +99,7 @@ public class LudusaviCli
 
     public void RefreshKnownGames()
     {
-        var (code, output) = Etc.RunCommand(_exePath, "--try-manifest-update manifest show --api");
+        var (code, output) = Etc.RunCommand(_exePath, "--try-manifest-update", "manifest", "show", "--api");
         if (code != 0) return;
 
         try
@@ -149,7 +149,7 @@ public class LudusaviCli
 
         var input = new ApiInput { Requests = requests };
         var json = JsonSerializer.Serialize(input);
-        var (code, output) = Etc.RunCommandWithStdin(_exePath, "api", json);
+        var (code, output) = Etc.RunCommandWithStdin(_exePath, new[] { "api" }, json);
         if (code != 0) return;
 
         try
@@ -182,7 +182,7 @@ public class LudusaviCli
         // Try Steam ID first
         if (steamId.HasValue)
         {
-            var (code, output) = Etc.RunCommand(_exePath, $"--try-manifest-update find --api --steam-id {steamId}");
+            var (code, output) = Etc.RunCommand(_exePath, "--try-manifest-update", "find", "--api", "--steam-id", steamId.Value.ToString());
             if (code == 0)
             {
                 var title = ParseFindResponse(output);
@@ -196,7 +196,7 @@ public class LudusaviCli
 
         // Try by name
         {
-            var (code, output) = Etc.RunCommand(_exePath, $"--try-manifest-update find --api \"{EscapeArg(name)}\"");
+            var (code, output) = Etc.RunCommand(_exePath, "--try-manifest-update", "find", "--api", name);
             if (code == 0)
             {
                 var title = ParseFindResponse(output);
@@ -211,7 +211,7 @@ public class LudusaviCli
         // Try normalized
         if (settings.RetryUnrecognizedWithNormalization)
         {
-            var (code, output) = Etc.RunCommand(_exePath, $"--try-manifest-update find --api --normalized \"{EscapeArg(name)}\"");
+            var (code, output) = Etc.RunCommand(_exePath, "--try-manifest-update", "find", "--api", "--normalized", name);
             if (code == 0)
             {
                 var title = ParseFindResponse(output);
@@ -230,15 +230,15 @@ public class LudusaviCli
 
     public (bool Success, string? Message) Backup(string gameName, string? backupPath = null)
     {
-        var pathArg = !string.IsNullOrEmpty(backupPath) ? $"--path \"{EscapeArg(backupPath)}\"" : "";
-        var (code, output) = Etc.RunCommand(_exePath, $"--try-manifest-update backup --force --api {pathArg} \"{EscapeArg(gameName)}\"");
+        var args = BuildOperationArgs("backup", gameName, backupPath: backupPath);
+        var (code, output) = Etc.RunCommand(_exePath, args);
         return ParseResult(code, output);
     }
 
     public (bool Success, string? Message) BackupAll(string? backupPath = null)
     {
-        var pathArg = !string.IsNullOrEmpty(backupPath) ? $"--path \"{EscapeArg(backupPath)}\"" : "";
-        var (code, output) = Etc.RunCommand(_exePath, $"--try-manifest-update backup --force --api {pathArg}");
+        var args = BuildOperationArgs("backup", backupPath: backupPath);
+        var (code, output) = Etc.RunCommand(_exePath, args);
         return ParseResult(code, output);
     }
 
@@ -246,16 +246,15 @@ public class LudusaviCli
 
     public (bool Success, string? Message) Restore(string gameName, string? backupName = null, string? backupPath = null)
     {
-        var pathArg = !string.IsNullOrEmpty(backupPath) ? $"--path \"{EscapeArg(backupPath)}\"" : "";
-        var backupArg = !string.IsNullOrEmpty(backupName) ? $"--backup \"{EscapeArg(backupName)}\"" : "";
-        var (code, output) = Etc.RunCommand(_exePath, $"--try-manifest-update restore --force --api {pathArg} {backupArg} \"{EscapeArg(gameName)}\"");
+        var args = BuildOperationArgs("restore", gameName, backupName, backupPath);
+        var (code, output) = Etc.RunCommand(_exePath, args);
         return ParseResult(code, output);
     }
 
     public (bool Success, string? Message) RestoreAll(string? backupPath = null)
     {
-        var pathArg = !string.IsNullOrEmpty(backupPath) ? $"--path \"{EscapeArg(backupPath)}\"" : "";
-            var (code, output) = Etc.RunCommand(_exePath, "--try-manifest-update restore --force --api {pathArg}");
+        var args = BuildOperationArgs("restore", backupPath: backupPath);
+        var (code, output) = Etc.RunCommand(_exePath, args);
         return ParseResult(code, output);
     }
 
@@ -263,12 +262,12 @@ public class LudusaviCli
 
     public void OpenGui()
     {
-        Etc.RunCommandGui(_exePath, "gui --api");
+        Etc.RunCommandGui(_exePath, "gui", "--api");
     }
 
     public void OpenGuiForGame(string gameName)
     {
-        Etc.RunCommandGui(_exePath, $"gui --api --custom-game \"{EscapeArg(gameName)}\"");
+        Etc.RunCommandGui(_exePath, "gui", "--api", "--custom-game", gameName);
     }
 
     // ===== Helpers =====
@@ -301,9 +300,16 @@ public class LudusaviCli
         }
     }
 
-    private static string EscapeArg(string arg)
+    private static string[] BuildOperationArgs(string command, string? gameName = null, string? backupName = null, string? backupPath = null)
     {
-        return arg.Replace("\"", "\\\"");
+        var args = new List<string> { "--try-manifest-update", command, "--force", "--api" };
+        if (!string.IsNullOrEmpty(backupPath))
+            args.AddRange(new[] { "--path", backupPath });
+        if (!string.IsNullOrEmpty(backupName))
+            args.AddRange(new[] { "--backup", backupName });
+        if (!string.IsNullOrEmpty(gameName))
+            args.Add(gameName);
+        return args.ToArray();
     }
 
     // ===== JSON Models =====

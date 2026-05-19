@@ -120,9 +120,6 @@ public class LudusaviPlugin : ISystemEventsPlugin, IGameLaunchingPlugin, IGameMe
     // ===== Init =====
     private void SafeInit()
     {
-        // Crude but reliable: log to temp to confirm code execution
-        try { File.WriteAllText(@"C:\Users\Jack\AppData\Local\Temp\ludusavi_init.txt", DateTime.Now.ToString()); } catch { }
-
         if (_initialized) return;
         lock (_lock) { if (_initialized) return; _initialized = true; }
 
@@ -156,16 +153,7 @@ public class LudusaviPlugin : ISystemEventsPlugin, IGameLaunchingPlugin, IGameMe
             // Auto-detect ludusavi if path not set
             if (string.IsNullOrEmpty(_settings.ExePath) || !File.Exists(_settings.ExePath))
             {
-                var knownPaths = new[]
-                {
-                    @"C:\Users\Jack\Documents\Emulation\ludusavi-v0.31.0-win64\ludusavi.exe",
-                };
-                foreach (var p in knownPaths)
-                {
-                    if (File.Exists(p)) { _settings.ExePath = p; break; }
-                }
-                if (string.IsNullOrEmpty(_settings.ExePath))
-                    _settings.ExePath = "ludusavi"; // fallback to PATH
+                _settings.ExePath = "ludusavi"; // fallback to PATH
                 try { _settings.Save(path); } catch { }
             }
         }

@@ -20,14 +20,13 @@ public static class Etc
 
     // ===== Process Execution =====
 
-    public static (int ExitCode, string Output) RunCommand(string command, string args)
+    public static (int ExitCode, string Output) RunCommand(string command, params string[] args)
     {
         try
         {
             var psi = new ProcessStartInfo
             {
                 FileName = command,
-                Arguments = args,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -35,6 +34,7 @@ public static class Etc
                 StandardOutputEncoding = Encoding.UTF8,
                 StandardErrorEncoding = Encoding.UTF8
             };
+            AddArguments(psi, args);
 
             using var p = Process.Start(psi);
             if (p == null) return (-1, "");
@@ -49,14 +49,13 @@ public static class Etc
         }
     }
 
-    public static (int ExitCode, string Output) RunCommandWithStdin(string command, string args, string stdin)
+    public static (int ExitCode, string Output) RunCommandWithStdin(string command, string[] args, string stdin)
     {
         try
         {
             var psi = new ProcessStartInfo
             {
                 FileName = command,
-                Arguments = args,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardInput = true,
@@ -65,6 +64,7 @@ public static class Etc
                 StandardOutputEncoding = Encoding.UTF8,
                 StandardErrorEncoding = Encoding.UTF8
             };
+            AddArguments(psi, args);
 
             using var p = Process.Start(psi);
             if (p == null) return (-1, "");
@@ -84,19 +84,26 @@ public static class Etc
         }
     }
 
-    public static void RunCommandGui(string command, string args)
+    public static void RunCommandGui(string command, params string[] args)
     {
         try
         {
-            Process.Start(new ProcessStartInfo
+            var psi = new ProcessStartInfo
             {
                 FileName = command,
-                Arguments = args,
                 UseShellExecute = false,
                 CreateNoWindow = false
-            });
+            };
+            AddArguments(psi, args);
+            Process.Start(psi);
         }
         catch { }
+    }
+
+    private static void AddArguments(ProcessStartInfo psi, IEnumerable<string> args)
+    {
+        foreach (var arg in args)
+            psi.ArgumentList.Add(arg);
     }
 
     // ===== Game Detection =====

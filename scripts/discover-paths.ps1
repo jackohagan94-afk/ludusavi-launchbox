@@ -42,6 +42,21 @@ param(
 
 $ErrorActionPreference = "Continue"
 
+function Convert-ToLudusaviPath {
+    param([string]$Path)
+    if (-not $Path) { return $Path }
+    return $Path.Replace('\', '/')
+}
+
+function Coalesce-Value {
+    param(
+        [string]$Value,
+        [string]$Fallback
+    )
+    if ([string]::IsNullOrEmpty($Value)) { return $Fallback }
+    return $Value
+}
+
 # ============================================================
 #  Path discovery
 # ============================================================
@@ -58,7 +73,7 @@ function Find-RetroArch {
         "E:\RetroArch"
     )
     foreach ($p in $candidates) {
-        if (Test-Path "$p\retroarch.exe" -or Test-Path "$p\retroarch-plus.exe") { return $p }
+        if ((Test-Path "$p\retroarch.exe") -or (Test-Path "$p\retroarch-plus.exe")) { return $p }
     }
     return $null
 }
@@ -81,8 +96,10 @@ function Find-EmuDir {
 $raPath = Find-RetroArch -ManualPath $RetroArchPath
 $emuPath = Find-EmuDir -ManualPath $EmuDir
 
-Write-Host "RetroArch : $($raPath ?? 'NOT FOUND')" -ForegroundColor $(if ($raPath) { 'Green' } else { 'Yellow' })
-Write-Host "Emulators : $($emuPath ?? 'NOT FOUND')" -ForegroundColor $(if ($emuPath) { 'Green' } else { 'Yellow' })
+$retroArchLabel = Coalesce-Value $raPath 'NOT FOUND'
+$emulatorsLabel = Coalesce-Value $emuPath 'NOT FOUND'
+Write-Host "RetroArch : $retroArchLabel" -ForegroundColor $(if ($raPath) { 'Green' } else { 'Yellow' })
+Write-Host "Emulators : $emulatorsLabel" -ForegroundColor $(if ($emuPath) { 'Green' } else { 'Yellow' })
 
 # ============================================================
 #  Variable replacements for config.yaml placeholders
@@ -91,8 +108,8 @@ Write-Host "Emulators : $($emuPath ?? 'NOT FOUND')" -ForegroundColor $(if ($emuP
 $replacements = @{
     '%APPDATA%'     = $env:APPDATA
     '%USERPROFILE%' = $env:USERPROFILE
-    '%RETROARCH%'   = $raPath ?? '%RETROARCH%'    # keep placeholder if not found
-    '%EMUDIR%'      = $emuPath ?? '%EMUDIR%'
+    '%RETROARCH%'   = Coalesce-Value $raPath '%RETROARCH%'
+    '%EMUDIR%'      = Coalesce-Value $emuPath '%EMUDIR%'
 }
 
 # ============================================================
@@ -109,13 +126,16 @@ if ($ConfigPath) {
 
     Write-Host "`nUpdating: $ConfigPath" -ForegroundColor Cyan
     $content = Get-Content $ConfigPath -Raw
+    $backupPath = "$ConfigPath.bak"
+    Copy-Item -LiteralPath $ConfigPath -Destination $backupPath -Force
+    Write-Host "Backup   : $backupPath" -ForegroundColor DarkCyan
 
     # Replace all %VARIABLE% placeholders with real paths
     foreach ($key in $replacements.Keys) {
         $val = $replacements[$key]
         if ($val -ne $key) {  # skip if placeholder wasn't resolved
             # Use forward slashes for Ludusavi YAML compatibility
-            $val = $val.Replace('\', '/')
+            $val = Convert-ToLudusaviPath $val
             $content = $content.Replace($key, $val)
             Write-Host "  $key -> $val" -ForegroundColor Green
         } else {
@@ -124,10 +144,10 @@ if ($ConfigPath) {
     }
 
     # Also replace %APPDATA% in its Roaming subpath form
-    $appdata = $env:APPDATA.Replace('\', '/')
+    $appdata = Convert-ToLudusaviPath $env:APPDATA
     $content = $content.Replace('%APPDATA%', $appdata)
 
-    Set-Content -Path $ConfigPath -Value $content -NoNewline
+    Set-Content -LiteralPath $ConfigPath -Value $content -NoNewline -Encoding UTF8
     Write-Host "`nDone! Config updated with detected paths." -ForegroundColor Green
 
     # Warn about rclone
@@ -180,8 +200,8 @@ if ($raPath) {
             "  - name: `"$($e.N)`"",
             "    integration: override",
             "    files:",
-            "      - `"$($raSaves.Replace('\','/'))\$($e.C)\**`"",
-            "      - `"$($raStates.Replace('\','/'))\$($e.C)\**`""
+            "      - `"$(Convert-ToLudusaviPath $raSaves)/$($e.C)/**`"",
+            "      - `"$(Convert-ToLudusaviPath $raStates)/$($e.C)/**`""
         )
         Write-Output ($lines -join [Environment]::NewLine)
         Write-Output "    registry: []"
@@ -215,9 +235,9 @@ foreach ($e in $standalone) {
         $expanded = $fp
         foreach ($k in $replacements.Keys) {
             $v = $replacements[$k]
-            if ($v -ne $k) { $expanded = $expanded.Replace($k, $v.Replace('\','/')) }
+            if ($v -ne $k) { $expanded = $expanded.Replace($k, (Convert-ToLudusaviPath $v)) }
         }
-        $paths += $expanded
+        $paths += Convert-ToLudusaviPath $expanded
     }
 
     Write-Output "  - name: `"$($e.N)`""

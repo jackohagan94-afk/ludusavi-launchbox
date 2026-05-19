@@ -26,10 +26,14 @@ Inspired by and modeled after [ludusavi-playnite](https://github.com/mtkennerly/
 |---|---|
 | **LaunchBox** | Version 13.x or newer (uses .NET 9.0 plugin host) |
 | **Windows** | Windows 10/11 64-bit |
-| **Ludusavi** | v0.24.0 or newer (v0.31.0+ recommended) |
-| **rclone** | Optional — only if using cloud sync |
+| **Ludusavi** | v0.24.0 or newer (v0.31.0+ recommended); installed separately |
+| **rclone** | Optional and installed separately — only if using cloud sync |
 
 ## Installation
+
+GitHub automatically shows "Source code" downloads on every release. Those are for developers and are not the plugin.
+
+For normal installation, download the release asset named `LudusaviLaunchBox.dll`.
 
 ### 1. Install Ludusavi
 
@@ -100,7 +104,9 @@ ludusavi cloud sync --api
    ```
 3. Restart LaunchBox
 
-### 4. Configure the Plugin
+Do not install the release source `.zip` or `.tar.gz`; LaunchBox needs the compiled `.dll`.
+
+### 6. Configure the Plugin
 
 On first run, the plugin creates `Plugins\ludusavi_settings.json`. Edit it to set:
 
@@ -166,6 +172,27 @@ dotnet build src/LudusaviLaunchBox.csproj -c Release
 ```
 
 The project references `Unbroken.LaunchBox.Plugins.dll` from your LaunchBox install. The stub in `stubs/` is a compile-time substitute — it is not shipped.
+
+## Releasing
+
+Release builds should attach the compiled plugin DLL as a GitHub release asset:
+
+```powershell
+.\scripts\package-release.ps1 -Version X.Y.Z -DotnetPath "C:\Users\Jack\scoop\apps\dotnet-sdk\current\dotnet.exe"
+gh release create vX.Y.Z `
+  artifacts/release/LudusaviLaunchBox-X.Y.Z/LudusaviLaunchBox.dll `
+  artifacts/release/LudusaviLaunchBox-X.Y.Z.zip `
+  --title "vX.Y.Z" `
+  --notes-file RELEASE_NOTES.md
+```
+
+The source archives that GitHub adds automatically are not installable plugin packages. Ludusavi and rclone are not bundled; users install those trusted upstream tools separately.
+
+## Security
+
+This plugin launches the local `ludusavi` executable configured in `Plugins\ludusavi_settings.json`. It does not use a shell, and game names/paths are passed as separate process arguments.
+
+See [SECURITY.md](SECURITY.md) for the current audit notes and reporting guidance.
 
 ## License
 
