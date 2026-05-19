@@ -131,6 +131,24 @@ On first run, the plugin creates `Plugins\ludusavi_settings.json`. Edit it to se
 | `BackupByPlatformForNonPc` | `true` | Use platform name for non-PC games (matches Ludusavi custom entries) |
 | `AddSuffixForNonPcGameNames` | `true` | Append `" (<platform>)"` to game names when resolving in Ludusavi |
 
+### Optional Setup Helper
+
+The release ZIP includes helper scripts for users who want a guided setup:
+
+```powershell
+.\scripts\setup-tools.ps1
+```
+
+It can install/update Ludusavi and rclone from upstream, write plugin defaults, copy the example Ludusavi config, run path discovery, and copy local HLTB theme/dataset assets when those files are available.
+
+To register monthly maintenance:
+
+```powershell
+.\scripts\register-monthly-maintenance.ps1
+```
+
+The monthly task runs `scripts\update-maintenance.ps1`, which checks the latest GitHub release asset for this plugin and refreshes Ludusavi/rclone from their upstream downloads.
+
 ## How It Works
 
 ### PC Games

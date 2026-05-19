@@ -43,7 +43,8 @@ Copy-Item -LiteralPath (Join-Path $repo "RELEASE_NOTES.md") -Destination $publis
 New-Item -ItemType Directory -Path (Join-Path $publish "examples") | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $publish "scripts") | Out-Null
 Copy-Item -LiteralPath (Join-Path $repo "examples\config.yaml") -Destination (Join-Path $publish "examples")
-Copy-Item -LiteralPath (Join-Path $repo "scripts\discover-paths.ps1") -Destination (Join-Path $publish "scripts")
+Get-ChildItem -LiteralPath (Join-Path $repo "scripts") -File -Filter "*.ps1" |
+    Copy-Item -Destination (Join-Path $publish "scripts")
 
 if (Test-Path -LiteralPath $zip) { Remove-Item -LiteralPath $zip -Force }
 Compress-Archive -Path (Join-Path $publish "*") -DestinationPath $zip

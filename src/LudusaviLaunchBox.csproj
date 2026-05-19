@@ -5,7 +5,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>LudusaviLaunchBox</AssemblyName>
     <RootNamespace>LudusaviLaunchBox</RootNamespace>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Description>LaunchBox plugin for cloud save backup and restore via Ludusavi</Description>

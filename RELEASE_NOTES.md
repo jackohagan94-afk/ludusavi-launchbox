@@ -1,3 +1,11 @@
+# v1.0.2
+
+## Added
+
+- Added optional `scripts/setup-tools.ps1` to install/update Ludusavi and rclone from upstream, write plugin defaults, create a Ludusavi config, run path discovery, and copy local HLTB theme/dataset assets into LaunchBox.
+- Added `scripts/update-maintenance.ps1` for monthly maintenance updates.
+- Added `scripts/register-monthly-maintenance.ps1` to register a Windows Scheduled Task for monthly maintenance.
+
 # v1.0.1
 
 ## Fixed
