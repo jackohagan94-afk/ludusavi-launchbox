@@ -193,24 +193,32 @@ The project references `Unbroken.LaunchBox.Plugins.dll` from your LaunchBox inst
 
 ## Releasing
 
-Release builds should attach the compiled plugin DLL as a GitHub release asset:
+Release builds are signed via **Azure Trusted Signing** to prevent LaunchBox from blocking the plugin.
+
+Push a tag to trigger the release workflow:
 
 ```powershell
-.\scripts\package-release.ps1 -Version X.Y.Z -DotnetPath "C:\Users\Jack\scoop\apps\dotnet-sdk\current\dotnet.exe"
-gh release create vX.Y.Z `
-  artifacts/release/LudusaviLaunchBox-X.Y.Z/LudusaviLaunchBox.dll `
-  artifacts/release/LudusaviLaunchBox-X.Y.Z.zip `
-  --title "vX.Y.Z" `
-  --notes-file RELEASE_NOTES.md
+git tag v1.0.3
+git push origin v1.0.3
 ```
 
-The source archives that GitHub adds automatically are not installable plugin packages. Ludusavi and rclone are not bundled; users install those trusted upstream tools separately.
+### Required GitHub Secrets
 
-## Security
+| Secret | Description |
+|---|---|
+| `AZURE_TENANT_ID` | Azure AD tenant ID |
+| `AZURE_CLIENT_ID` | Service principal with Trusted Signing Certificate Profile Signer role |
+| `AZURE_SUBSCRIPTION_ID` | Azure subscription ID |
+| `TRUSTED_SIGNING_ACCOUNT_NAME` | Azure Trusted Signing account name |
+| `TRUSTED_SIGNING_CERT_PROFILE` | Certificate profile name |
 
-This plugin launches the local `ludusavi` executable configured in `Plugins\ludusavi_settings.json`. It does not use a shell, and game names/paths are passed as separate process arguments.
+### Setup Azure Trusted Signing
 
-See [SECURITY.md](SECURITY.md) for the current audit notes and reporting guidance.
+1. Create an [Azure subscription](https://azure.microsoft.com/free) (free tier works)
+2. Follow [Microsoft's guide](https://learn.microsoft.com/en-us/azure/trusted-signing/how-to-signing-integrations) to create a Trusted Signing account
+3. Create a certificate profile (Public Trust or Private)
+4. Create a service principal with `Trusted Signing Certificate Profile Signer` role
+5. Add the secrets above to your GitHub repo settings
 
 ## License
 
