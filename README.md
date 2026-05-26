@@ -97,7 +97,7 @@ ludusavi cloud sync --api
 
 ### 5. Install the Plugin
 
-1. Download `LudusaviLaunchBox.dll` from the [latest release](https://github.com/jackohagan94-afk/ludusavi-launchbox/releases)
+1. Download `LudusaviLaunchBox.dll` from the [latest release](https://github.com/johagan94/ludusavi-launchbox/releases)
 2. Drop it into your LaunchBox `Plugins` folder:
    ```
    C:\Users\<You>\LaunchBox\Plugins\LudusaviLaunchBox.dll
