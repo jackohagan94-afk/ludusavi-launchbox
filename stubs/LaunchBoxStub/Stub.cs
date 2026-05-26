@@ -18,7 +18,15 @@ namespace Unbroken.LaunchBox.Plugins
 
     public interface IGameMenuItemPlugin
     {
-        Data.IGameMenuItem GetMenuItem(Data.IGame[] selectedGames);
+        bool SupportsMultipleGames { get; }
+        string Caption { get; }
+        System.Drawing.Image IconImage { get; }
+        bool ShowInLaunchBox { get; }
+        bool ShowInBigBox { get; }
+        bool GetIsValidForGame(Data.IGame selectedGame);
+        bool GetIsValidForGames(Data.IGame[] selectedGames);
+        void OnSelected(Data.IGame selectedGame);
+        void OnSelected(Data.IGame[] selectedGames);
     }
 
     public interface IGameMultiMenuItemPlugin
