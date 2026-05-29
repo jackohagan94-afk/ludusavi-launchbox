@@ -120,7 +120,7 @@ if ($ConfigPath) {
     if (-not (Test-Path $ConfigPath)) {
         Write-Host "Config not found: $ConfigPath" -ForegroundColor Red
         Write-Host "Download the example config first:" -ForegroundColor Yellow
-        Write-Host "  curl -o `"$ConfigPath`" https://raw.githubusercontent.com/jackohagan94-afk/ludusavi-launchbox/main/examples/config.yaml"
+        Write-Host "  curl -o `"$ConfigPath`" https://raw.githubusercontent.com/johagan94/ludusavi-launchbox/master/examples/config.yaml"
         exit 1
     }
 

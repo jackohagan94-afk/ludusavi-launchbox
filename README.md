@@ -97,7 +97,7 @@ ludusavi cloud sync --api
 
 ### 5. Install the Plugin
 
-1. Download `LudusaviLaunchBox.dll` from the [latest release](https://github.com/jackohagan94-afk/ludusavi-launchbox/releases)
+1. Download `LudusaviLaunchBox.dll` from the [latest release](https://github.com/johagan94/ludusavi-launchbox/releases)
 2. Drop it into your LaunchBox `Plugins` folder:
    ```
    C:\Users\<You>\LaunchBox\Plugins\LudusaviLaunchBox.dll
@@ -193,7 +193,7 @@ The project references `Unbroken.LaunchBox.Plugins.dll` from your LaunchBox inst
 
 ## Releasing
 
-Release builds are signed via **Azure Trusted Signing** to prevent LaunchBox from blocking the plugin.
+Release builds are signed via **[SignPath](https://signpath.io)** to prevent LaunchBox from blocking the plugin. The `build` job compiles the DLL on Windows and uploads it as an unsigned artifact; the `sign` job submits that artifact to SignPath and attaches the signed DLL to the GitHub release.
 
 Push a tag to trigger the release workflow:
 
@@ -206,19 +206,17 @@ git push origin v1.0.3
 
 | Secret | Description |
 |---|---|
-| `AZURE_TENANT_ID` | Azure AD tenant ID |
-| `AZURE_CLIENT_ID` | Service principal with Trusted Signing Certificate Profile Signer role |
-| `AZURE_SUBSCRIPTION_ID` | Azure subscription ID |
-| `TRUSTED_SIGNING_ACCOUNT_NAME` | Azure Trusted Signing account name |
-| `TRUSTED_SIGNING_CERT_PROFILE` | Certificate profile name |
+| `SIGNPATH_API_TOKEN` | SignPath API token (user with the Submitter role on the signing policy) |
+| `SIGNPATH_ORGANIZATION_ID` | SignPath organization ID |
 
-### Setup Azure Trusted Signing
+The workflow also references a SignPath **project** (slug `ludusavi-launchbox`) and **signing policy** (slug `release-signing`) — create both with matching slugs in SignPath.
 
-1. Create an [Azure subscription](https://azure.microsoft.com/free) (free tier works)
-2. Follow [Microsoft's guide](https://learn.microsoft.com/en-us/azure/trusted-signing/how-to-signing-integrations) to create a Trusted Signing account
-3. Create a certificate profile (Public Trust or Private)
-4. Create a service principal with `Trusted Signing Certificate Profile Signer` role
-5. Add the secrets above to your GitHub repo settings
+### Setup SignPath
+
+1. Create a [SignPath](https://signpath.io) organization (free plans are available for open-source projects).
+2. Add a **project** with slug `ludusavi-launchbox` and a **signing policy** with slug `release-signing`.
+3. Connect this GitHub repository as a trusted artifact source for the project.
+4. Create an API token for a user with the *Submitter* role; add it as `SIGNPATH_API_TOKEN` and your organization ID as `SIGNPATH_ORGANIZATION_ID` in the repo's Actions secrets.
 
 ## License
 

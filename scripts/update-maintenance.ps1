@@ -9,7 +9,7 @@
 
 param(
     [string]$LaunchBoxPath = "$env:USERPROFILE\LaunchBox",
-    [string]$Repo = "jackohagan94-afk/ludusavi-launchbox",
+    [string]$Repo = "johagan94/ludusavi-launchbox",
     [switch]$Yes
 )
 
